@@ -3,17 +3,19 @@ import * as Revolt from 'better-revolt-js';
 import { LoginDetails } from 'better-revolt-js/dist/client/Client';
 import { ClientOptions } from 'better-revolt-js/dist/client/BaseClient';
 import EventEmitter from 'eventemitter3';
+import fetch from 'node-fetch';
 import { RevoltEventNames } from '../constants';
 import VoltareModule from '../module';
 import CommandsModule from '../modules/commands';
 import CollectorModule from '../modules/collector';
-import { RevoltEvents, LoggerExtra } from '../types';
+import { RevoltEvents, LoggerExtra, AutumnUploadable } from '../types';
 import LoggerHandler from '../util/logger';
 import TypedEmitter from '../util/typedEmitter';
 import EventRegistry from './events';
 import PermissionRegistry from './permissions';
 import DataManager from '../dataManager';
 import MemoryDataManager from '../dataManagers/memory';
+import { MultipartData } from '../util/multipartData';
 
 type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> };
 
@@ -189,6 +191,19 @@ export default class VoltareClient<
     this.on('error', (error) => this.emit('logger', 'error', 'revolt', [error]));
 
     return this;
+  }
+
+  /** Uploads something to Autumn and returns the ID. */
+  async upload(file: AutumnUploadable, type: 'avatars' | 'attachments' = 'attachments') {
+    const data = new MultipartData();
+    data.attach('file', file.file, file.name);
+    const response = await fetch(`https://autumn.revolt.chat/${type}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'multipart/form-data; boundary=' + data.boundary },
+      body: Buffer.concat(data.finish())
+    });
+    const body = await response.json();
+    return body.id as string;
   }
 
   /**

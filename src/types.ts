@@ -59,3 +59,8 @@ export interface PermissionObject {
   member?: Revolt.ServerMember;
   message?: Revolt.Message;
 }
+
+export interface AutumnUploadable {
+  name: string;
+  file: Buffer;
+}
