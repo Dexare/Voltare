@@ -49,8 +49,6 @@ interface LoggerExtraBase {
 /** Extra data for logger events. */
 export interface LoggerExtra extends LoggerExtraBase {
   command?: VoltareCommand;
-  id?: number;
-  trace?: string[];
 }
 
 /** The object for checking permissions. */
@@ -60,6 +58,10 @@ export interface PermissionObject {
   message?: Revolt.Message;
 }
 
+/** The types of images in Autumn. */
+export type AutumnType = 'avatars' | 'attachments' | 'icons' | 'banners';
+
+/** An image uplodable to Autumn. */
 export interface AutumnUploadable {
   name: string;
   file: Buffer;

@@ -8,7 +8,7 @@ import { RevoltEventNames } from '../constants';
 import VoltareModule from '../module';
 import CommandsModule from '../modules/commands';
 import CollectorModule from '../modules/collector';
-import { RevoltEvents, LoggerExtra, AutumnUploadable } from '../types';
+import { RevoltEvents, LoggerExtra, AutumnType, AutumnUploadable } from '../types';
 import LoggerHandler from '../util/logger';
 import TypedEmitter from '../util/typedEmitter';
 import EventRegistry from './events';
@@ -194,7 +194,7 @@ export default class VoltareClient<
   }
 
   /** Uploads something to Autumn and returns the ID. */
-  async upload(file: AutumnUploadable, type: 'avatars' | 'attachments' = 'attachments') {
+  async upload(file: AutumnUploadable, type: AutumnType = 'attachments') {
     const data = new MultipartData();
     data.attach('file', file.file, file.name);
     const response = await fetch(`https://autumn.revolt.chat/${type}`, {
@@ -204,6 +204,11 @@ export default class VoltareClient<
     });
     const body = await response.json();
     return body.id as string;
+  }
+
+  /** Gets the URL of an image on Autumn. */
+  imageToURL(id: string, type: AutumnType = 'attachments', size?: number) {
+    return `https://autumn.revolt.chat/${type}/${id}${size ? `?max_side=${size}` : ''}`;
   }
 
   /**
