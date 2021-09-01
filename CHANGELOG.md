@@ -5,8 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [1.0.0] - 2021-02-13
+## [0.2.0] - 2021-09-01
+### Removed:
+- **[BREAKING]** `CommandContext.fetchMember`
+### Changed:
+- **[BREAKING]** Changed libraries from `better-revolt-js` to `revolt.js`.
+### Added:
+- `autumnHost` prop to client config
+## [0.1.0] - 2021-08-29
 - Initial release.
 
-[Unreleased]: https://github.com/Dexare/Dexare/compare/v0.1.0...HEAD
-[1.0.0]: https://github.com/Dexare/Dexare/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Dexare/Voltare/compare/v0.2.0...HEAD
+[0.1.0]: https://github.com/Dexare/Dexare/releases/tag/v0.1.0
+[0.2.0]: https://github.com/Dexare/Voltare/compare/v1.0.0...v0.2.0
