@@ -1,10 +1,12 @@
-import * as Revolt from 'better-revolt-js';
 import { oneLine } from 'common-tags';
 import CommandsModule from '.';
 import VoltareClient from '../../client';
 import { PermissionNames } from '../../constants';
-import CommandContext from './context';
+import CommandContext, { MessageOptions } from './context';
 import { ClientEvent } from '../../client/events';
+import { Message } from 'revolt.js/dist/maps/Messages';
+import { User } from 'revolt.js/dist/maps/Users';
+import { Member } from 'revolt.js/dist/maps/Members';
 
 /** The options for a {@link VoltareCommand}. */
 export interface CommandOptions {
@@ -138,19 +140,19 @@ export default class VoltareCommand {
         if (data.response) return ctx.reply(data.response);
         return ctx.reply(`You do not have permission to use the \`${this.name}\` command.`);
       }
-      case 'clientPermissions': {
-        if (data.missing.length === 1) {
-          return ctx.reply(
-            `I need the "${
-              PermissionNames['discord.' + data.missing[0].toLowerCase()]
-            }" permission for the \`${this.name}\` command to work.`
-          );
-        }
-        return ctx.reply(oneLine`
-					I need the following permissions for the \`${this.name}\` command to work:
-					${data.missing.map((perm: string) => PermissionNames['discord.' + perm.toLowerCase()]).join(', ')}
-				`);
-      }
+      // case 'clientPermissions': {
+      //   if (data.missing.length === 1) {
+      //     return ctx.reply(
+      //       `I need the "${
+      //         PermissionNames['discord.' + data.missing[0].toLowerCase()]
+      //       }" permission for the \`${this.name}\` command to work.`
+      //     );
+      //   }
+      //   return ctx.reply(oneLine`
+      //     I need the following permissions for the \`${this.name}\` command to work:
+      //     ${data.missing.map((perm: string) => PermissionNames['discord.' + perm.toLowerCase()]).join(', ')}
+      //   `);
+      // }
       case 'throttling': {
         return ctx.reply(
           data.remaining
@@ -189,7 +191,7 @@ export default class VoltareCommand {
    * @param object The permission object to throttle
    * @param event The event to use
    */
-  async throttle(object: Revolt.Message | Revolt.User | Revolt.ServerMember, event?: ClientEvent) {
+  async throttle(object: Message | User | Member, event?: ClientEvent) {
     if (!this.throttling) return;
     const permObject = this.client.permissions.toObject(object);
 
@@ -205,7 +207,7 @@ export default class VoltareCommand {
     return await this.client.data.throttle(
       'command_' + this.name,
       this.throttling,
-      permObject.user.id,
+      permObject.user._id,
       event
     );
   }
@@ -214,7 +216,7 @@ export default class VoltareCommand {
    * Runs the command.
    * @param ctx The context of the message
    */
-  async run(ctx: CommandContext): Promise<string|Revolt.MessageOptions|void> { // eslint-disable-line @typescript-eslint/no-unused-vars, prettier/prettier
+  async run(ctx: CommandContext): Promise<string|MessageOptions|void> { // eslint-disable-line @typescript-eslint/no-unused-vars, prettier/prettier
     throw new Error(`${this.constructor.name} doesn't have a run() method.`);
   }
 

@@ -1,6 +1,8 @@
 import Collection from '@discordjs/collection';
-import * as Revolt from 'better-revolt-js';
-import type { ChannelPermissionsResolvable } from 'better-revolt-js';
+import { ChannelPermission, ServerPermission, UserPermission } from 'revolt.js/dist/api/permissions';
+import { Member } from 'revolt.js/dist/maps/Members';
+import { Message } from 'revolt.js/dist/maps/Messages';
+import { User } from 'revolt.js/dist/maps/Users';
 import { PermissionObject } from '../types';
 import LoggerHandler from '../util/logger';
 import { ClientEvent } from './events';
@@ -16,13 +18,9 @@ export type PermissionFunction<T extends VoltareClient<any>> = (
 ) => boolean;
 
 export const CorePermissions = [
-  ...Object.keys(Revolt.ChannelPermissions.FLAGS).map(
-    (permission) => 'revolt.channel.' + permission.toLowerCase()
-  ),
-  ...Object.keys(Revolt.UserPermissions.FLAGS).map((permission) => 'revolt.user.' + permission.toLowerCase()),
-  ...Object.keys(Revolt.ServerPermissions.FLAGS).map(
-    (permission) => 'revolt.server.' + permission.toLowerCase()
-  ),
+  ...Object.keys(UserPermission).map((permission) => 'revolt.user.' + permission.toLowerCase()),
+  ...Object.keys(ChannelPermission).map((permission) => 'revolt.channel.' + permission.toLowerCase()),
+  ...Object.keys(ServerPermission).map((permission) => 'revolt.server.' + permission.toLowerCase()),
   'voltare.elevated',
   'voltare.inserver'
 ];
@@ -37,7 +35,7 @@ export default class PermissionRegistry<T extends VoltareClient<any>> {
     this.client = client;
     this.logger = new LoggerHandler<T>(this.client, 'voltare/permissions');
 
-    // TODO revolt permissions, not entirely available in better-revolt-js
+    // TODO revolt permissions
     // for (const permission in Revolt.ChannelPermissions.FLAGS) {
     //   this.permissions.set('revolt.channel.' + permission.toLowerCase(), (object) => {
     //     if (object.message)
@@ -50,13 +48,13 @@ export default class PermissionRegistry<T extends VoltareClient<any>> {
     this.permissions.set('voltare.elevated', (object, client) => {
       if (!client.config.elevated) return false;
 
-      if (Array.isArray(client.config.elevated)) return client.config.elevated.includes(object.user.id);
-      return client.config.elevated === object.user.id;
+      if (Array.isArray(client.config.elevated)) return client.config.elevated.includes(object.user._id);
+      return client.config.elevated === object.user._id;
     });
 
     this.permissions.set('voltare.inserver', (object) => {
       if (object.member) return true;
-      if (object.message) return !!object.message.serverId;
+      if (object.message) return !!object.message.channel?.server_id;
       return false;
     });
   }
@@ -123,17 +121,17 @@ export default class PermissionRegistry<T extends VoltareClient<any>> {
    * Convert something into a permission object.
    * @param object The object to convert
    */
-  toObject(object: Revolt.Message | Revolt.User | Revolt.ServerMember): PermissionObject {
+  toObject(object: Message | User | Member): PermissionObject {
     const result: any = {};
 
-    let user: Revolt.User;
-    if (object instanceof Revolt.Message) user = object.author!;
-    else if (object instanceof Revolt.ServerMember) user = object.user;
+    let user: User;
+    if (object instanceof Message) user = object.author!;
+    else if (object instanceof Member) user = this.client.bot.users.get(object._id.user)!;
     else user = object;
 
     result.user = user;
-    if (object instanceof Revolt.ServerMember) result.member = object;
-    if (object instanceof Revolt.Message) {
+    if (object instanceof Member) result.member = object;
+    if (object instanceof Message) {
       result.message = object;
       if (object.member) result.member = object.member;
     }

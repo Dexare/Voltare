@@ -96,10 +96,24 @@ export default class EvalCommand extends VoltareCommand {
 
   get sensitivePattern() {
     if (!this._sensitivePattern) {
-      // @ts-ignore
-      const token = this.client.bot._token;
-      let pattern = '';
-      if (token) pattern += escapeRegex(token);
+      const sensitiveStrings: string[] = [
+        // Session token
+        this.client.bot.session
+          ? typeof this.client.bot.session === 'string'
+            ? this.client.bot.session
+            : this.client.bot.session.session_token
+          : null,
+        // @ts-ignore Bot token
+        this.client.bot.Axios.defaults.headers['x-bot-token'],
+        // E-mail
+        this.client.config.login.type === 'user' && this.client.config.login.email,
+        // Password
+        this.client.config.login.type === 'user' && this.client.config.login.password
+      ];
+      const pattern = sensitiveStrings
+        .filter((v) => !!v)
+        .map((string) => escapeRegex(string))
+        .join('|');
       Object.defineProperty(this, '_sensitivePattern', {
         value: new RegExp(pattern, 'gi'),
         configurable: false

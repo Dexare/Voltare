@@ -80,7 +80,7 @@ export default class HelpCommand extends VoltareCommand {
       let fieldsPushed = 0;
       cmdNames.forEach((name: string) => {
         const length = name.length + 4;
-        if (valueLength + length > 1024) {
+        if (valueLength + length > 1800) {
           fieldsPushed++;
           blocks.push(stripIndents`
             __**${truncate(cat, 200)} (${fieldsPushed})**__
@@ -103,8 +103,8 @@ export default class HelpCommand extends VoltareCommand {
     const messages = splitMessage(blocks.join('\n\n'));
     if (messages.length === 1) return messages[0];
     try {
-      const dm = await ctx.author.createDM();
-      for (const content of messages) await dm.send(content);
+      const dm = await ctx.author.openDM();
+      for (const content of messages) await dm.sendMessage(content);
       if (ctx.server) return 'Sent you a DM with information.';
     } catch (e) {
       return 'Unable to send you the help DM. You probably have DMs disabled.';

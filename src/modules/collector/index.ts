@@ -1,5 +1,5 @@
 import Collection from '@discordjs/collection';
-import * as Revolt from 'better-revolt-js';
+import { Channel } from 'revolt.js/dist/maps/Channels';
 import VoltareClient from '../../client';
 import VoltareModule from '../../module';
 import Collector from './collector';
@@ -31,7 +31,7 @@ export default class CollectorModule<T extends VoltareClient<any>> extends Volta
    * @param options The options for the collector.
    */
   createMessageCollector(
-    channel: Revolt.TextChannel | Revolt.DMChannel | Revolt.GroupChannel,
+    channel: Channel,
     filter: MessageCollectorFilter,
     options: MessageCollectorOptions = {}
   ): MessageCollector {
@@ -39,11 +39,7 @@ export default class CollectorModule<T extends VoltareClient<any>> extends Volta
   }
 
   /** Awaits messages in a channel. */
-  awaitMessages(
-    channel: Revolt.TextChannel | Revolt.DMChannel | Revolt.GroupChannel,
-    filter: MessageCollectorFilter,
-    options: AwaitMessagesOptions = {}
-  ) {
+  awaitMessages(channel: Channel, filter: MessageCollectorFilter, options: AwaitMessagesOptions = {}) {
     return new Promise((resolve, reject) => {
       const collector = this.createMessageCollector(channel, filter, options);
       collector.once('end', (collection, reason) => {

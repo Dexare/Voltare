@@ -42,8 +42,8 @@ export { DefaultCommand } from './modules/commands';
 export { CommandOptions, ThrottlingOptions } from './modules/commands/command';
 export { StringIterator } from './modules/commands/interpreter';
 export { ThrottleObject, ThrottleResult } from './dataManager';
-export { RevoltEventNames, PermissionNames } from './constants';
+export * from './constants';
 export { ModuleOptions } from './module';
-export { RevoltEvents, LoggerExtra, PermissionObject } from './types';
+export { LoggerExtra, PermissionObject } from './types';
 
 export const VERSION: string = require('../package.json').version;

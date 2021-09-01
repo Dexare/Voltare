@@ -1,10 +1,11 @@
-import * as Revolt from 'better-revolt-js';
+import { Channel } from 'revolt.js/dist/maps/Channels';
+import { Message } from 'revolt.js/dist/maps/Messages';
 import CollectorModule from '.';
 import { VoltareClient } from '../..';
 import { ClientEvent } from '../../client/events';
 import Collector, { CollectorOptions } from './collector';
 
-export type MessageCollectorFilter = (message: Revolt.Message) => boolean;
+export type MessageCollectorFilter = (message: Message) => boolean;
 
 export interface MessageCollectorOptions extends CollectorOptions {
   /** The maximum amount of messages to collect */
@@ -20,27 +21,27 @@ export interface MessageCollectorOptions extends CollectorOptions {
  * Will automatically stop if the channel (`'channelDelete'`) or guild (`'guildDelete'`) are deleted.
  */
 export default class MessageCollector extends Collector {
-  readonly channel: Revolt.TextChannel | Revolt.DMChannel | Revolt.GroupChannel;
+  readonly channel: Channel;
   readonly options!: MessageCollectorOptions;
   received = 0;
   constructor(
     collectorModule: CollectorModule<VoltareClient<any>>,
-    channel: Revolt.TextChannel | Revolt.DMChannel | Revolt.GroupChannel,
+    channel: Channel,
     filter: MessageCollectorFilter,
     options: MessageCollectorOptions = {}
   ) {
     super(collectorModule, filter, options);
     this.channel = channel;
 
-    this.registerEvent(Revolt.Events.MESSAGE, this.handleCollect, {
+    this.registerEvent('message', this.handleCollect, {
       before: this.options.skip || []
     });
-    this.registerEvent(Revolt.Events.MESSAGE_DELETE, this.handleDispose);
-    this.registerEvent(Revolt.Events.CHANNEL_DELETE, (_, channel) => {
-      if (channel.id === this.channel.id) this.stop('channelDelete');
+    this.registerEvent('messageDelete', this.handleDispose);
+    this.registerEvent('channelDelete', (_, channelId) => {
+      if (channel._id === channelId) this.stop('channelDelete');
     });
-    this.registerEvent(Revolt.Events.SERVER_DELETE, (_, server) => {
-      if ('serverId' in this.channel && server.id === this.channel.serverId) this.stop('serverDelete');
+    this.registerEvent('serverDelete', (_, serverId) => {
+      if (this.channel.server_id === serverId) this.stop('serverDelete');
     });
   }
 
@@ -48,22 +49,23 @@ export default class MessageCollector extends Collector {
    * Handles a message for possible collection.
    * @param message The message that could be collected
    */
-  collect(event: ClientEvent, message: Revolt.Message) {
-    if (message.channel.id !== this.channel.id) return null;
+  collect(event: ClientEvent, message: Message) {
+    if (!message.channel) return null;
+    if (message.channel._id !== this.channel._id) return null;
     if (this.options.skip) this.options.skip.forEach((group) => event.skip(group));
     this.received++;
     return {
-      key: message.id,
+      key: message._id,
       value: message
     };
   }
 
   /**
    * Handles a message for possible disposal.
-   * @param message The message that could be disposed of
+   * @param messageId The ID of the message that could be disposed of
    */
-  dispose(_: never, message: Revolt.Message) {
-    return message.channel.id === this.channel.id ? message.id : null;
+  dispose(_: never, messageId: string) {
+    return this.collected.has(messageId);
   }
 
   /** Checks after un/collection to see if the collector is done. */

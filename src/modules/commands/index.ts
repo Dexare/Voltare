@@ -1,5 +1,4 @@
 import Collection from '@discordjs/collection';
-import * as Revolt from 'better-revolt-js';
 import { join } from 'path';
 import VoltareClient from '../../client';
 import { ClientEvent } from '../../client/events';
@@ -17,6 +16,7 @@ import KillCommand from './default/kill';
 import LoadCommand from './default/load';
 import UnloadCommand from './default/unload';
 import ReloadCommand from './default/reload';
+import { Message } from 'revolt.js/dist/maps/Messages';
 
 /** The default command names available. */
 export type DefaultCommand = 'eval' | 'help' | 'ping' | 'exec' | 'kill' | 'load' | 'unload' | 'reload';
@@ -37,7 +37,7 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
 
   /** @hidden */
   load() {
-    this.registerEvent(Revolt.Events.MESSAGE, this.onMessage.bind(this));
+    this.registerEvent('message', this.onMessage.bind(this));
   }
 
   /** @hidden */
@@ -180,7 +180,7 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
 
     const escapedPrefixes = prefixes.map(this._escapeRegExp);
 
-    if (useMentionPrefix) escapedPrefixes.push(`<@${this.client.bot.user!.id}>`);
+    if (useMentionPrefix) escapedPrefixes.push(`<@${this.client.bot.user!._id}>`);
 
     return new RegExp(`^(?<prefix>${escapedPrefixes.join('|')})(?<space> )?`, caseSensitive ? '' : 'i');
   }
@@ -193,27 +193,11 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
   }
 
   /** @hidden */
-  private async onMessage(event: ClientEvent, message: Revolt.Message) {
-    if (message.system || message.type !== 'TEXT') return;
+  private async onMessage(event: ClientEvent, message: Message) {
+    if (message.author_id === '00000000000000000000000000' || typeof message.content !== 'string') return;
 
-    // Resolve user
-    if (!message.author)
-      try {
-        await this.client.bot.users.fetch(message.authorId);
-      } catch (e) {
-        return;
-      }
-
-    // Resolve member
-    if (message.serverId && !message.member)
-      try {
-        await message.server!.members.fetch(message.authorId);
-      } catch (e) {
-        return;
-      }
-
-    // TODO Bot exclusion
-    if (message.authorId === this.client.bot.user!.id) return;
+    // TODO Better bot exclusion
+    if (message.author_id === this.client.bot.user!._id) return;
 
     const prefixRegex = this._buildPrefixes(event);
     if (!prefixRegex) return;
@@ -279,7 +263,7 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
       this._logCommand(
         'debug',
         command,
-        `Running command '${command.name}' (${ctx.author.username}, ${ctx.author.id})`
+        `Running command '${command.name}' (${ctx.author.username}, ${ctx.author._id})`
       );
       const promise = command.run(ctx);
       const retVal = await promise;

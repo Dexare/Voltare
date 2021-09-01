@@ -1,7 +1,16 @@
-import * as Revolt from 'better-revolt-js';
+import { Route } from 'revolt.js/dist/api/routes';
+import { Channel } from 'revolt.js/dist/maps/Channels';
+import { Member } from 'revolt.js/dist/maps/Members';
+import { Message } from 'revolt.js/dist/maps/Messages';
+import { Server } from 'revolt.js/dist/maps/Servers';
+import { User } from 'revolt.js/dist/maps/Users';
 import CommandsModule from '.';
 import VoltareClient from '../../client';
 import { ClientEvent } from '../../client/events';
+
+export type MessageOptions =
+  | string
+  | (Omit<Route<'POST', '/channels/id/messages'>['data'], 'nonce'> & { nonce?: string });
 
 export default class CommandContext {
   /** The commands module. */
@@ -11,19 +20,19 @@ export default class CommandContext {
   /** The client from this context. */
   readonly client: VoltareClient<any>;
   /** The message this context is reffering to. */
-  readonly message: Revolt.Message;
+  readonly message: Message;
   /** The channel that the message is in. */
-  readonly channel: Revolt.TextChannel | Revolt.DMChannel | Revolt.GroupChannel;
+  readonly channel: Channel;
   /** The author of the message. */
-  readonly author: Revolt.User;
+  readonly author: User;
   /** The prefix used for this context. */
   readonly prefix: string;
   /** The arguments used in this context. */
   readonly args: string[];
   /** The server the message is in. */
-  readonly server?: Revolt.Server;
+  readonly server?: Server;
   /** The member that created the message. */
-  member?: Revolt.ServerMember;
+  member?: Member;
 
   /**
    * @param creator The instantiating creator.
@@ -36,59 +45,32 @@ export default class CommandContext {
     event: ClientEvent,
     args: string[],
     prefix: string,
-    message: Revolt.Message
+    message: Message
   ) {
     this.cmdsModule = cmdsModule;
     this.client = cmdsModule.client;
     this.event = event;
     this.message = message;
-    this.channel = message.channel;
+    this.channel = message.channel!;
     this.author = message.author!;
     if (message.member) this.member = message.member;
-    if ('server' in message && message.server) this.server = message.server;
+    if (message.channel!.server) this.server = message.channel!.server;
     this.args = args;
     this.prefix = prefix;
   }
 
-  /*
-    TODO attachments, send through .send() and .reply()
-
-    https://autumn.revolt.chat/attachments
-    Form Data to `file`
-    {"id":"IdRF3_PV0-AD7kCyuQ-Vd98ZhGrvjiUYQM0WcIrP-d"}
-
-    In message:
-    { attachments: ['IdRF3_PV0-AD7kCyuQ-Vd98ZhGrvjiUYQM0WcIrP-d'] }
-  */
-
-  /** Shorthand for `message.channel.send`. */
-  send(content: Revolt.MessageOptions | string) {
-    return this.message.channel.send(content);
+  /** Shorthand for `channel.sendMessage`. */
+  send(content: MessageOptions) {
+    return this.channel.sendMessage(content);
   }
 
   /**
    * Replies to the message in context.
    */
-  reply(content: Revolt.MessageOptions | string) {
+  reply(content: MessageOptions | string, mention = true) {
     if (typeof content === 'string') content = { content };
-    if ('replies' in content && content.replies) content.replies.push({ id: this.message.id, mention: true });
-    else content.replies = [{ id: this.message.id, mention: true }];
-    return this.message.channel.send(content);
-  }
-
-  /**
-   * Fetches the member for this message and assigns it.
-   */
-  async fetchMember() {
-    if (this.member) return this.member;
-    if (!this.server) return null;
-    let member = this.server.members.cache.get(this.author.id);
-    if (member) {
-      this.member = member;
-      return member;
-    }
-    member = await this.server.members.fetch(this.author.id);
-    this.member = member;
-    return member;
+    if ('replies' in content && content.replies) content.replies.push({ id: this.message._id, mention });
+    else content.replies = [{ id: this.message._id, mention }];
+    return this.channel.sendMessage(content);
   }
 }

@@ -1,14 +1,11 @@
 import Collection from '@discordjs/collection';
-import * as Revolt from 'better-revolt-js';
-import { LoginDetails } from 'better-revolt-js/dist/client/Client';
-import { ClientOptions } from 'better-revolt-js/dist/client/BaseClient';
+import * as Revolt from 'revolt.js';
 import EventEmitter from 'eventemitter3';
 import fetch from 'node-fetch';
-import { RevoltEventNames } from '../constants';
 import VoltareModule from '../module';
 import CommandsModule from '../modules/commands';
 import CollectorModule from '../modules/collector';
-import { RevoltEvents, LoggerExtra, AutumnType, AutumnUploadable } from '../types';
+import { LoggerExtra, AutumnType, AutumnUploadable } from '../types';
 import LoggerHandler from '../util/logger';
 import TypedEmitter from '../util/typedEmitter';
 import EventRegistry from './events';
@@ -16,12 +13,30 @@ import PermissionRegistry from './permissions';
 import DataManager from '../dataManager';
 import MemoryDataManager from '../dataManagers/memory';
 import { MultipartData } from '../util/multipartData';
+import { ClientboundNotification } from 'revolt.js/dist/websocket/notifications';
+import { Message } from 'revolt.js/dist/maps/Messages';
+import clone from 'lodash.clone';
 
-type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> };
+export type LoginDetails =
+  | {
+      type: 'bot';
+      token: string;
+    }
+  | {
+      type: 'user';
+      email: string;
+      password: string;
+    }
+  | {
+      type: 'session';
+      user_id: string;
+      session_token: string;
+    };
 
 export interface BaseConfig {
   login: LoginDetails;
-  revoltOptions?: DeepPartial<ClientOptions>;
+  autumnHost?: string;
+  revoltOptions?: Partial<Revolt.ClientOptions>;
   elevated?: string | Array<string>;
 }
 
@@ -29,12 +44,27 @@ export interface BaseConfig {
  * The events typings for the {@link VoltareClient}.
  * @private
  */
-export interface VoltareClientEvents extends RevoltEvents {
+export interface VoltareClientEvents {
   logger(level: string, group: string, args: any[], extra?: LoggerExtra): void;
   beforeConnect(): void;
   afterConnect(): void;
   beforeDisconnect(): void;
   afterDisconnect(): void;
+
+  error(error: any): void;
+  ready(): void;
+  connecting(): void;
+  connected(): void;
+  disconnected(): void;
+  packet(packet: ClientboundNotification): void;
+
+  message(message: Message): void;
+  messageUpdate(message: Message): void;
+  messageDelete(messageId: string): void;
+
+  channelDelete(channelId: string): void;
+
+  serverDelete(serverId: string): void;
 }
 
 /** @hidden */
@@ -54,16 +84,37 @@ export default class VoltareClient<
   readonly commands = new CommandsModule<this>(this);
   readonly collector = new CollectorModule<this>(this);
   data: DataManager = new MemoryDataManager(this);
-  private readonly _hookedEvents: string[] = [];
   private _revoltEventsLogged = false;
 
   constructor(config: T, bot?: Revolt.Client) {
     // eslint-disable-next-line constructor-super
     super();
 
-    this.config = config;
+    this.config = clone(config);
+    this.config.autumnHost ||= 'https://autumn.revolt.chat';
     if (bot) this.bot = bot;
     else this.bot = new Revolt.Client(this.config.revoltOptions);
+
+    // Hook Revolt events, some are missing so it uses packets beforehand
+    this.bot.on('ready', () => this.emit('ready'));
+    this.bot.on('connected', () => this.emit('connected'));
+    this.bot.on('connecting', () => this.emit('connecting'));
+    this.bot.on('dropped', () => this.emit('disconnected'));
+    this.bot.on('message', (message) => this.emit('message', message));
+    this.bot.on('message/update', (message) => this.emit('messageUpdate', message));
+    this.bot.on('message/delete', (messageId) => this.emit('messageDelete', messageId));
+    this.bot.on('packet', (packet) => {
+      this.emit('packet', packet);
+      switch (packet.type) {
+        case 'Error':
+          return this.emit('error', packet.error);
+        case 'ChannelDelete':
+          return this.emit('channelDelete', packet.id);
+        case 'ServerDelete':
+          return this.emit('serverDelete', packet.id);
+      }
+    });
+
     this.permissions = new PermissionRegistry(this);
     this.modules.set('commands', this.commands);
     this.commands._load();
@@ -183,11 +234,10 @@ export default class VoltareClient<
     if (this._revoltEventsLogged) return this;
     this._revoltEventsLogged = true;
 
-    this.on('raw', (data: any) => {
-      if (data.type === 'Authenticated') this.emit('logger', 'debug', 'revolt', ['Authenticated']);
-    });
+    this.on('connecting', () => this.emit('logger', 'debug', 'revolt', ['Connecting...']));
+    this.on('connected', () => this.emit('logger', 'debug', 'revolt', ['Bot has connected.']));
     this.on('ready', () => this.emit('logger', 'info', 'revolt', ['Bot is ready.']));
-    this.on('debug', (message) => this.emit('logger', 'debug', 'revolt', [message]));
+    // this.on('debug', (message) => this.emit('logger', 'debug', 'revolt', [message]));
     this.on('error', (error) => this.emit('logger', 'error', 'revolt', [error]));
 
     return this;
@@ -197,7 +247,7 @@ export default class VoltareClient<
   async upload(file: AutumnUploadable, type: AutumnType = 'attachments') {
     const data = new MultipartData();
     data.attach('file', file.file, file.name);
-    const response = await fetch(`https://autumn.revolt.chat/${type}`, {
+    const response = await fetch(`${this.config.autumnHost!}/${type}`, {
       method: 'POST',
       headers: { 'Content-Type': 'multipart/form-data; boundary=' + data.boundary },
       body: Buffer.concat(data.finish())
@@ -208,26 +258,7 @@ export default class VoltareClient<
 
   /** Gets the URL of an image on Autumn. */
   imageToURL(id: string, type: AutumnType = 'attachments', size?: number) {
-    return `https://autumn.revolt.chat/${type}/${id}${size ? `?max_side=${size}` : ''}`;
-  }
-
-  /**
-   * Register an event.
-   * @param event The event to register
-   * @param listener The event listener
-   */
-  on<E extends keyof VoltareEvents>(event: E, listener: VoltareEvents[E]) {
-    if (
-      typeof event === 'string' &&
-      !this._hookedEvents.includes(event) &&
-      RevoltEventNames.includes(event)
-    ) {
-      // @ts-ignore
-      this.bot.on(event, (...args: any[]) => this.emit(event, ...args));
-      this._hookedEvents.push(event);
-    }
-
-    return super.on(event, listener);
+    return `${this.config.autumnHost!}/${type}/${id}${size ? `?max_side=${size}` : ''}`;
   }
 
   /**
@@ -238,11 +269,23 @@ export default class VoltareClient<
     return new Promise((resolve) => this.once(event, resolve));
   }
 
+  /** Logs in to Revolt. */
+  login(login: LoginDetails) {
+    switch (login.type) {
+      case 'bot':
+        return this.bot.loginBot(login.token);
+      case 'user':
+        return this.bot.login({ email: login.email, password: login.password });
+      case 'session':
+        return this.bot.useExistingSession({ user_id: login.user_id, session_token: login.session_token });
+    }
+  }
+
   /** Connects and logs in to Revolt. */
   async connect() {
     await this.events.emitAsync('beforeConnect');
     await this.data.start();
-    await this.bot.login(this.config.login);
+    await this.login(this.config.login);
     await this.events.emitAsync('afterConnect');
   }
 
