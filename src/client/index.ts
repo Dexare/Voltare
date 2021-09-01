@@ -179,7 +179,7 @@ export default class VoltareClient<
   }
 
   /** Logs informational Revolt events to Voltare's logger event. */
-  logErisEvents() {
+  logRevoltEvents() {
     if (this._revoltEventsLogged) return this;
     this._revoltEventsLogged = true;
 
