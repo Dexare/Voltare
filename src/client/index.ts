@@ -281,6 +281,13 @@ export default class VoltareClient<
     }
   }
 
+  /** Logs out of Revolt. */
+  async logout() {
+    // @ts-expect-error we tappin into axios
+    const isBot = !!this.bot.Axios.default.headers['x-bot-token'];
+    isBot ? this.bot.reset() : await this.bot.logout();
+  }
+
   /** Connects and logs in to Revolt. */
   async connect() {
     await this.events.emitAsync('beforeConnect');
@@ -293,7 +300,7 @@ export default class VoltareClient<
   async disconnect() {
     await this.events.emitAsync('beforeDisconnect');
     await this.data.stop();
-    await this.bot.logout();
+    await this.logout();
     await this.events.emitAsync('afterDisconnect');
   }
 
