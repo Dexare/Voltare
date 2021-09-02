@@ -30,10 +30,10 @@ export default class ExecCommand extends VoltareCommand {
 
     if (!execString) return 'This command requires something to execute.';
 
-    // await this.client.startTyping(ctx.channel.id);
+    ctx.channel.startTyping();
     const hrStart = process.hrtime();
     exec(execString, (err, stdout, stderr) => {
-      // this.client.stopTyping(ctx.channel.id);
+      ctx.channel.stopTyping();
       if (err) return ctx.send(`Error while executing: \`\`\`${err}\`\`\``);
       const hrDiff = process.hrtime(hrStart);
       ctx.send(
