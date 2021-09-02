@@ -195,7 +195,13 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
 
   /** @hidden */
   private async onMessage(event: ClientEvent, message: Message) {
-    if (message.author_id === '00000000000000000000000000' || typeof message.content !== 'string') return;
+    if (
+      message.author_id === '00000000000000000000000000' ||
+      typeof message.content !== 'string' ||
+      !message.channel
+    )
+      return;
+    if (!(message.channel.permission & ChannelPermission.SendMessage)) return;
 
     // TODO Better bot exclusion
     if (message.author_id === this.client.bot.user!._id) return;
