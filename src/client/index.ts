@@ -285,7 +285,7 @@ export default class VoltareClient<
   /** Logs out of Revolt. */
   async logout() {
     // @ts-expect-error we tappin into axios
-    const isBot = !!this.bot.Axios.default.headers['x-bot-token'];
+    const isBot = !!this.bot.Axios.defaults.headers['x-bot-token'];
     isBot ? this.bot.reset() : await this.bot.logout();
   }
 
