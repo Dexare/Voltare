@@ -7,6 +7,8 @@ import { iterateFolder } from '../../util';
 import VoltareCommand from './command';
 import CommandContext from './context';
 import ArgumentInterpreter from './interpreter';
+import { Message } from 'revolt.js/dist/maps/Messages';
+import { ChannelPermission, ServerPermission } from 'revolt.js/dist/api/permissions';
 
 import EvalCommand from './default/eval';
 import HelpCommand from './default/help';
@@ -16,7 +18,6 @@ import KillCommand from './default/kill';
 import LoadCommand from './default/load';
 import UnloadCommand from './default/unload';
 import ReloadCommand from './default/reload';
-import { Message } from 'revolt.js/dist/maps/Messages';
 
 /** The default command names available. */
 export type DefaultCommand = 'eval' | 'help' | 'ping' | 'exec' | 'kill' | 'load' | 'unload' | 'reload';
@@ -223,29 +224,37 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
     event.set('commands/command', command);
     event.set('commands/ctx', ctx);
 
-    // TODO implement permission checks
-    // // Ensure the user has permission to use the command
-    // const hasPermission = command.hasPermission(ctx);
-    // if (!hasPermission || typeof hasPermission === 'string') {
-    //   const data = {
-    //     response: typeof hasPermission === 'string' ? hasPermission : undefined
-    //   };
-    //   await command.onBlock(ctx, 'permission', data);
-    //   return;
-    // }
+    // Ensure the user has permission to use the command
+    const hasPermission = command.hasPermission(ctx);
+    if (!hasPermission || typeof hasPermission === 'string') {
+      const data = {
+        response: typeof hasPermission === 'string' ? hasPermission : undefined
+      };
+      await command.onBlock(ctx, 'permission', data);
+      return;
+    }
 
-    // // Ensure the client user has the required permissions
-    // if ('permissionsOf' in message.channel && command.clientPermissions) {
-    //   const perms = message.channel.permissionsOf(this.client.bot.user!.id).json;
-    //   const missing = command.clientPermissions.filter(
-    //     (perm: keyof Eris.Constants['Permissions']) => !perms[perm]
-    //   );
-    //   if (missing.length > 0) {
-    //     const data = { missing };
-    //     await command.onBlock(ctx, 'clientPermissions', data);
-    //     return;
-    //   }
-    // }
+    // Ensure the client user has the required channel permissions
+    if (message.channel && command.clientChannelPermissions) {
+      const perms = this.client.permissions.getChannelPerms(message.channel, this.client.bot.user!);
+      const missing = command.clientChannelPermissions.filter((perm) => !(perms & ChannelPermission[perm]));
+      if (missing.length > 0) {
+        const data = { missing };
+        await command.onBlock(ctx, 'clientChannelPermissions', data);
+        return;
+      }
+    }
+
+    // Ensure the client user has the required server permissions
+    if (message.channel && message.channel.server && command.clientServerPermissions) {
+      const perms = this.client.permissions.getServerPerms(message.channel.server, this.client.bot.user!);
+      const missing = command.clientServerPermissions.filter((perm) => !(perms & ServerPermission[perm]));
+      if (missing.length > 0) {
+        const data = { missing };
+        await command.onBlock(ctx, 'clientServerPermissions', data);
+        return;
+      }
+    }
 
     // Throttle the command
     if (command.throttling) {

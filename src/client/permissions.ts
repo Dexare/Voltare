@@ -15,8 +15,6 @@ import { ClientEvent } from './events';
 import VoltareClient from './index';
 import { Server } from 'revolt.js/dist/maps/Servers';
 
-// TODO rewrite this
-
 /** The function for a permission. */
 export type PermissionFunction<T extends VoltareClient<any>> = (
   object: PermissionObject,
@@ -75,6 +73,64 @@ export default class PermissionRegistry<T extends VoltareClient<any>> {
       if (object.message) return !!object.message.channel?.server_id;
       return false;
     });
+  }
+
+  getChannelPerms(channel: Channel, user: User) {
+    switch (channel.channel_type) {
+      case 'SavedMessages':
+        return U32_MAX;
+      case 'DirectMessage':
+        return DEFAULT_PERMISSION_DM;
+      case 'Group':
+        return DEFAULT_PERMISSION_DM;
+      case 'TextChannel':
+      case 'VoiceChannel': {
+        if (!channel.server) return 0;
+
+        if (channel.server.owner === user._id) return U32_MAX;
+        else {
+          const member = this.client.bot.members.getKey({
+            user: user._id,
+            server: channel.server._id
+          }) ?? { roles: null };
+
+          if (!member) return 0;
+
+          let perm = (channel.default_permissions ?? channel.server.default_permissions[1]) >>> 0;
+
+          if (member.roles) {
+            for (const role of member.roles) {
+              perm |= (channel.role_permissions?.[role] ?? 0) >>> 0;
+              perm |= (channel.server.roles?.[role].permissions[1] ?? 0) >>> 0;
+            }
+          }
+
+          return perm;
+        }
+      }
+    }
+  }
+
+  getServerPerms(server: Server, user: User) {
+    if (server.owner === user._id) {
+      return U32_MAX;
+    } else {
+      const member = this.client.bot.members.getKey({
+        user: user._id,
+        server: server._id
+      }) ?? { roles: null };
+
+      if (!member) return 0;
+
+      let perm = server.default_permissions[0] >>> 0;
+      if (member.roles) {
+        for (const role of member.roles) {
+          perm |= (server.roles?.[role].permissions[0] ?? 0) >>> 0;
+        }
+      }
+
+      return perm;
+    }
   }
 
   /**
@@ -155,63 +211,5 @@ export default class PermissionRegistry<T extends VoltareClient<any>> {
     }
 
     return result;
-  }
-
-  private getChannelPerms(channel: Channel, user: User) {
-    switch (channel.channel_type) {
-      case 'SavedMessages':
-        return U32_MAX;
-      case 'DirectMessage':
-        return DEFAULT_PERMISSION_DM;
-      case 'Group':
-        return DEFAULT_PERMISSION_DM;
-      case 'TextChannel':
-      case 'VoiceChannel': {
-        if (!channel.server) return 0;
-
-        if (channel.server.owner === user._id) return U32_MAX;
-        else {
-          const member = this.client.bot.members.getKey({
-            user: user._id,
-            server: channel.server._id
-          }) ?? { roles: null };
-
-          if (!member) return 0;
-
-          let perm = (channel.default_permissions ?? channel.server.default_permissions[1]) >>> 0;
-
-          if (member.roles) {
-            for (const role of member.roles) {
-              perm |= (channel.role_permissions?.[role] ?? 0) >>> 0;
-              perm |= (channel.server.roles?.[role].permissions[1] ?? 0) >>> 0;
-            }
-          }
-
-          return perm;
-        }
-      }
-    }
-  }
-
-  private getServerPerms(server: Server, user: User) {
-    if (server.owner === user._id) {
-      return U32_MAX;
-    } else {
-      const member = this.client.bot.members.getKey({
-        user: user._id,
-        server: server._id
-      }) ?? { roles: null };
-
-      if (!member) return 0;
-
-      let perm = server.default_permissions[0] >>> 0;
-      if (member.roles) {
-        for (const role of member.roles) {
-          perm |= (server.roles?.[role].permissions[0] ?? 0) >>> 0;
-        }
-      }
-
-      return perm;
-    }
   }
 }

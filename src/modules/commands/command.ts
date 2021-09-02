@@ -7,6 +7,7 @@ import { ClientEvent } from '../../client/events';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import { User } from 'revolt.js/dist/maps/Users';
 import { Member } from 'revolt.js/dist/maps/Members';
+import { ChannelPermission, ServerPermission } from 'revolt.js/dist/api/permissions';
 
 /** The options for a {@link VoltareCommand}. */
 export interface CommandOptions {
@@ -20,9 +21,10 @@ export interface CommandOptions {
   description?: string;
   /** The required permission(s) for a user to use this command. */
   userPermissions?: string[];
-  // TODO clientPermissions
-  // /** The required client permission(s) for this command. */
-  // clientPermissions?: (keyof Eris.Constants['Permissions'])[];
+  /** The required client channel permission(s) for this command. */
+  clientChannelPermissions?: (keyof typeof ChannelPermission)[];
+  /** The required client server permission(s) for this command. */
+  clientServerPermissions?: (keyof typeof ServerPermission)[];
   /** The throttling options for the command. */
   throttling?: ThrottlingOptions;
   /** Metadata for the command. Useful for any other identifiers for the command. */
@@ -50,8 +52,10 @@ export default class VoltareCommand {
   readonly description?: string;
   /** The permissions required to use this command. */
   readonly userPermissions?: string[];
-  // /** The permissions the client is required to have for this command. */
-  // readonly clientPermissions?: (keyof Eris.Constants['Permissions'])[];
+  /** The channel permissions the client is required to have for this command. */
+  readonly clientChannelPermissions?: (keyof typeof ChannelPermission)[];
+  /** The server permissions the client is required to have for this command. */
+  readonly clientServerPermissions?: (keyof typeof ServerPermission)[];
   /** The throttling options for this command. */
   readonly throttling?: ThrottlingOptions;
   /** Metadata for the command. */
@@ -86,7 +90,8 @@ export default class VoltareCommand {
     this.category = opts.category || 'Uncategorized';
     this.description = opts.description;
     this.userPermissions = opts.userPermissions;
-    // this.clientPermissions = opts.clientPermissions;
+    this.clientChannelPermissions = opts.clientChannelPermissions;
+    this.clientServerPermissions = opts.clientServerPermissions;
     this.throttling = opts.throttling;
     this.metadata = opts.metadata;
   }
@@ -140,19 +145,36 @@ export default class VoltareCommand {
         if (data.response) return ctx.reply(data.response);
         return ctx.reply(`You do not have permission to use the \`${this.name}\` command.`);
       }
-      // case 'clientPermissions': {
-      //   if (data.missing.length === 1) {
-      //     return ctx.reply(
-      //       `I need the "${
-      //         PermissionNames['discord.' + data.missing[0].toLowerCase()]
-      //       }" permission for the \`${this.name}\` command to work.`
-      //     );
-      //   }
-      //   return ctx.reply(oneLine`
-      //     I need the following permissions for the \`${this.name}\` command to work:
-      //     ${data.missing.map((perm: string) => PermissionNames['discord.' + perm.toLowerCase()]).join(', ')}
-      //   `);
-      // }
+      case 'clientChannelPermissions': {
+        if (data.missing.length === 1) {
+          return ctx.reply(
+            `I need the "${
+              PermissionNames['revolt.channel.' + data.missing[0].toLowerCase()]
+            }" channel permission for the \`${this.name}\` command to work.`
+          );
+        }
+        return ctx.reply(oneLine`
+          I need the following channel permissions for the \`${this.name}\` command to work:
+          ${data.missing
+            .map((perm: string) => PermissionNames['revolt.channel.' + perm.toLowerCase()])
+            .join(', ')}
+        `);
+      }
+      case 'clientServerPermissions': {
+        if (data.missing.length === 1) {
+          return ctx.reply(
+            `I need the "${
+              PermissionNames['revolt.server.' + data.missing[0].toLowerCase()]
+            }" server permission for the \`${this.name}\` command to work.`
+          );
+        }
+        return ctx.reply(oneLine`
+          I need the following server permissions for the \`${this.name}\` command to work:
+          ${data.missing
+            .map((perm: string) => PermissionNames['revolt.server.' + perm.toLowerCase()])
+            .join(', ')}
+        `);
+      }
       case 'throttling': {
         return ctx.reply(
           data.remaining
