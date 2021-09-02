@@ -237,6 +237,7 @@ export default class VoltareClient<
     this.on('connecting', () => this.emit('logger', 'debug', 'revolt', ['Connecting...']));
     this.on('connected', () => this.emit('logger', 'debug', 'revolt', ['Bot has connected.']));
     this.on('ready', () => this.emit('logger', 'info', 'revolt', ['Bot is ready.']));
+    this.on('disconnected', () => this.emit('logger', 'info', 'revolt', ['Bot has disconnected.']));
     // this.on('debug', (message) => this.emit('logger', 'debug', 'revolt', [message]));
     this.on('error', (error) => this.emit('logger', 'error', 'revolt', [error]));
 
