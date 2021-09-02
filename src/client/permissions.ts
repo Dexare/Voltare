@@ -1,12 +1,19 @@
 import Collection from '@discordjs/collection';
-import { ChannelPermission, ServerPermission, UserPermission } from 'revolt.js/dist/api/permissions';
+import {
+  ChannelPermission,
+  ServerPermission,
+  DEFAULT_PERMISSION_DM,
+  U32_MAX
+} from 'revolt.js/dist/api/permissions';
 import { Member } from 'revolt.js/dist/maps/Members';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import { User } from 'revolt.js/dist/maps/Users';
+import { Channel } from 'revolt.js/dist/maps/Channels';
 import { PermissionObject } from '../types';
 import LoggerHandler from '../util/logger';
 import { ClientEvent } from './events';
 import VoltareClient from './index';
+import { Server } from 'revolt.js/dist/maps/Servers';
 
 // TODO rewrite this
 
@@ -18,7 +25,6 @@ export type PermissionFunction<T extends VoltareClient<any>> = (
 ) => boolean;
 
 export const CorePermissions = [
-  ...Object.keys(UserPermission).map((permission) => 'revolt.user.' + permission.toLowerCase()),
   ...Object.keys(ChannelPermission).map((permission) => 'revolt.channel.' + permission.toLowerCase()),
   ...Object.keys(ServerPermission).map((permission) => 'revolt.server.' + permission.toLowerCase()),
   'voltare.elevated',
@@ -35,15 +41,27 @@ export default class PermissionRegistry<T extends VoltareClient<any>> {
     this.client = client;
     this.logger = new LoggerHandler<T>(this.client, 'voltare/permissions');
 
-    // TODO revolt permissions
-    // for (const permission in Revolt.ChannelPermissions.FLAGS) {
-    //   this.permissions.set('revolt.channel.' + permission.toLowerCase(), (object) => {
-    //     if (object.message)
-    //       if (object.message.serverId && object.member) {}
-    //     else if (object.member) {}
-    //     return Revolt.DEFAULT_PERMISSION_DM.has(permission as ChannelPermissionsResolvable);
-    //   });
-    // }
+    for (const permission in ChannelPermission) {
+      this.permissions.set('revolt.channel.' + permission.toLowerCase(), (object) => {
+        if (object.message && object.message.channel && object.message.author)
+          return !!(
+            this.getChannelPerms(object.message.channel, object.message.author) &
+            ChannelPermission[permission as keyof typeof ChannelPermission]
+          );
+        return !!(DEFAULT_PERMISSION_DM & ChannelPermission[permission as keyof typeof ChannelPermission]);
+      });
+    }
+
+    for (const permission in ServerPermission) {
+      this.permissions.set('revolt.server.' + permission.toLowerCase(), (object) => {
+        if (object.message && object.message.channel?.server && object.message.author)
+          return !!(
+            this.getServerPerms(object.message.channel.server, object.message.author) &
+            ChannelPermission[permission as keyof typeof ChannelPermission]
+          );
+        return false;
+      });
+    }
 
     this.permissions.set('voltare.elevated', (object, client) => {
       if (!client.config.elevated) return false;
@@ -137,5 +155,63 @@ export default class PermissionRegistry<T extends VoltareClient<any>> {
     }
 
     return result;
+  }
+
+  private getChannelPerms(channel: Channel, user: User) {
+    switch (channel.channel_type) {
+      case 'SavedMessages':
+        return U32_MAX;
+      case 'DirectMessage':
+        return DEFAULT_PERMISSION_DM;
+      case 'Group':
+        return DEFAULT_PERMISSION_DM;
+      case 'TextChannel':
+      case 'VoiceChannel': {
+        if (!channel.server) return 0;
+
+        if (channel.server.owner === user._id) return U32_MAX;
+        else {
+          const member = this.client.bot.members.getKey({
+            user: user._id,
+            server: channel.server._id
+          }) ?? { roles: null };
+
+          if (!member) return 0;
+
+          let perm = (channel.default_permissions ?? channel.server.default_permissions[1]) >>> 0;
+
+          if (member.roles) {
+            for (const role of member.roles) {
+              perm |= (channel.role_permissions?.[role] ?? 0) >>> 0;
+              perm |= (channel.server.roles?.[role].permissions[1] ?? 0) >>> 0;
+            }
+          }
+
+          return perm;
+        }
+      }
+    }
+  }
+
+  private getServerPerms(server: Server, user: User) {
+    if (server.owner === user._id) {
+      return U32_MAX;
+    } else {
+      const member = this.client.bot.members.getKey({
+        user: user._id,
+        server: server._id
+      }) ?? { roles: null };
+
+      if (!member) return 0;
+
+      let perm = server.default_permissions[0] >>> 0;
+      if (member.roles) {
+        for (const role of member.roles) {
+          perm |= (server.roles?.[role].permissions[0] ?? 0) >>> 0;
+        }
+      }
+
+      return perm;
+    }
   }
 }
