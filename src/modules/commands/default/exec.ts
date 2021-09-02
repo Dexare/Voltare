@@ -38,8 +38,8 @@ export default class ExecCommand extends VoltareCommand {
       const hrDiff = process.hrtime(hrStart);
       ctx.send(
         `*Executed in ${hrDiff[0] > 0 ? `${hrDiff[0]}s ` : ''}${hrDiff[1] / 1000000}ms.*\n` +
-          (stderr ? `\`\`\`js${stderr}\`\`\`\n` : '') +
-          `\`\`\`${stdout}\`\`\``
+          (stderr ? `\`\`\`js\n${stderr}\n\`\`\`\n` : '') +
+          `\`\`\`\n${stdout}\n\`\`\``
       );
     });
   }

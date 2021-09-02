@@ -81,7 +81,7 @@ export default class EvalCommand extends VoltareCommand {
       return (
         `*Executed in ${hrDiff[0] > 0 ? `${hrDiff[0]}s ` : ''}${hrDiff[1] / 1000000}ms.*\n\`\`\`js\n` +
         inspected.slice(0, 1900) +
-        `\`\`\``
+        `\n\`\`\``
       );
     } else {
       return (
@@ -89,7 +89,7 @@ export default class EvalCommand extends VoltareCommand {
           hrDiff[1] / 1000000
         }ms.*\n\`\`\`js\n` +
         inspected.slice(0, 1900) +
-        `\`\`\``
+        `\n\`\`\``
       );
     }
   }
