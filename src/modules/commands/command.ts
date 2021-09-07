@@ -2,7 +2,7 @@ import { oneLine } from 'common-tags';
 import CommandsModule from '.';
 import VoltareClient from '../../client';
 import { PermissionNames } from '../../constants';
-import CommandContext, { MessageOptions } from './context';
+import CommandContext from './context';
 import { ClientEvent } from '../../client/events';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import { User } from 'revolt.js/dist/maps/Users';
@@ -238,7 +238,7 @@ export default class VoltareCommand {
    * Runs the command.
    * @param ctx The context of the message
    */
-  async run(ctx: CommandContext): Promise<string|MessageOptions|void> { // eslint-disable-line @typescript-eslint/no-unused-vars, prettier/prettier
+  async run(ctx: CommandContext): Promise<any> { // eslint-disable-line @typescript-eslint/no-unused-vars, prettier/prettier
     throw new Error(`${this.constructor.name} doesn't have a run() method.`);
   }
 
