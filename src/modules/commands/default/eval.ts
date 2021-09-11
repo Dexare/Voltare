@@ -101,7 +101,7 @@ export default class EvalCommand extends VoltareCommand {
         this.client.bot.session
           ? typeof this.client.bot.session === 'string'
             ? this.client.bot.session
-            : this.client.bot.session.session_token
+            : this.client.bot.session.token
           : null,
         // @ts-ignore Bot token
         this.client.bot.Axios.defaults.headers['x-bot-token'],

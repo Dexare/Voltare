@@ -338,7 +338,11 @@ export default class VoltareClient<
       case 'user':
         return this.bot.login({ email: login.email, password: login.password });
       case 'session':
-        return this.bot.useExistingSession({ user_id: login.user_id, session_token: login.session_token });
+        return this.bot.useExistingSession({
+          name: 'Voltare',
+          token: login.session_token,
+          user_id: login.user_id
+        });
     }
   }
 
