@@ -49,6 +49,7 @@ export interface BaseConfig {
   autumnHost?: string;
   revoltOptions?: Partial<Revolt.ClientOptions>;
   elevated?: string | Array<string>;
+  allowMalformedSpam?: boolean;
 }
 
 /**
@@ -137,9 +138,10 @@ export default class VoltareClient<
       this.emit('packet', packet);
       switch (packet.type) {
         case 'Error':
-          // @ts-expect-error this isn't even a type wtf
-          if (packet.error === 'MalformedData') return;
-          return this.emit('error', packet.error);
+          // @ts-expect-error this isn't even in the union type wtf
+          if (packet.error === 'MalformedData' && !this.config.allowMalformedSpam) return;
+          // @ts-expect-error this actually exists, but types suck.
+          return this.emit('error', `${packet.error}${packet.msg ? `: ${packet.msg}` : ''}`);
         case 'ChannelCreate':
           return this.emit('channelCreate', packet);
         case 'ChannelUpdate':
