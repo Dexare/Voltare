@@ -107,6 +107,8 @@ export default class VoltareClient<
       this.emit('packet', packet);
       switch (packet.type) {
         case 'Error':
+          // @ts-expect-error this isn't even a type wtf
+          if (packet.error === 'MalformedData') return;
           return this.emit('error', packet.error);
         case 'ChannelDelete':
           return this.emit('channelDelete', packet.id);
