@@ -47,3 +47,8 @@ export { ModuleOptions } from './module';
 export { LoggerExtra, PermissionObject } from './types';
 
 export const VERSION: string = require('../package.json').version;
+
+// Export some types
+export type { User } from 'revolt-api/types/Users';
+export type { Channel } from 'revolt-api/types/Channels';
+export type { Server, Member, MemberCompositeKey, Role } from 'revolt-api/types/Servers';

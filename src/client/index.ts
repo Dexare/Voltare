@@ -5,7 +5,17 @@ import fetch from 'node-fetch';
 import VoltareModule from '../module';
 import CommandsModule from '../modules/commands';
 import CollectorModule from '../modules/collector';
-import { LoggerExtra, AutumnType, AutumnUploadable } from '../types';
+import {
+  LoggerExtra,
+  AutumnType,
+  AutumnUploadable,
+  ChannelUpdatePacket,
+  ServerUpdatePacket,
+  ServerMemberUpdatePacket,
+  ServerRoleUpdatePacket,
+  UserUpdatePacket,
+  UserRelationshipUpdate
+} from '../types';
 import LoggerHandler from '../util/logger';
 import TypedEmitter from '../util/typedEmitter';
 import EventRegistry from './events';
@@ -16,6 +26,7 @@ import { MultipartData } from '../util/multipartData';
 import { ClientboundNotification } from 'revolt.js/dist/websocket/notifications';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import clone from 'lodash.clone';
+import { Channel } from 'revolt-api/types/Channels';
 
 export type LoginDetails =
   | {
@@ -62,9 +73,28 @@ export interface VoltareClientEvents {
   messageUpdate(message: Message): void;
   messageDelete(messageId: string): void;
 
+  channelCreate(channel: Channel): void;
+  channelUpdate(packet: ChannelUpdatePacket): void;
   channelDelete(channelId: string): void;
 
+  groupUserJoin(serverId: string, userId: string): void;
+  groupUserLeave(serverId: string, userId: string): void;
+
+  serverUpdate(packet: ServerUpdatePacket): void;
   serverDelete(serverId: string): void;
+
+  serverMemberJoin(serverId: string, user: string): void;
+  serverMemberUpdate(packet: ServerMemberUpdatePacket): void;
+  serverMemberLeave(serverId: string, user: string): void;
+
+  serverRoleUpdate(packet: ServerRoleUpdatePacket): void;
+  serverRoleDelete(serverId: string, roleId: string): void;
+
+  userUpdate(packet: UserUpdatePacket): void;
+  userRelationshipUpdate(packet: UserRelationshipUpdate): void;
+
+  typingStart(channelId: string, userId: string): void;
+  typingStop(channelId: string, userId: string): void;
 }
 
 /** @hidden */
@@ -110,10 +140,38 @@ export default class VoltareClient<
           // @ts-expect-error this isn't even a type wtf
           if (packet.error === 'MalformedData') return;
           return this.emit('error', packet.error);
+        case 'ChannelCreate':
+          return this.emit('channelCreate', packet);
+        case 'ChannelUpdate':
+          return this.emit('channelUpdate', packet);
         case 'ChannelDelete':
           return this.emit('channelDelete', packet.id);
+        case 'ChannelGroupJoin':
+          return this.emit('groupUserJoin', packet.id, packet.user);
+        case 'ChannelGroupLeave':
+          return this.emit('groupUserLeave', packet.id, packet.user);
+        case 'ServerUpdate':
+          return this.emit('serverUpdate', packet);
         case 'ServerDelete':
           return this.emit('serverDelete', packet.id);
+        case 'ServerMemberJoin':
+          return this.emit('serverMemberJoin', packet.id, packet.user);
+        case 'ServerMemberUpdate':
+          return this.emit('serverMemberUpdate', packet);
+        case 'ServerMemberLeave':
+          return this.emit('serverMemberLeave', packet.id, packet.user);
+        case 'ServerRoleUpdate':
+          return this.emit('serverRoleUpdate', packet);
+        case 'ServerRoleDelete':
+          return this.emit('serverRoleDelete', packet.id, packet.role_id);
+        case 'UserUpdate':
+          return this.emit('userUpdate', packet);
+        case 'UserRelationship':
+          return this.emit('userRelationshipUpdate', packet);
+        case 'ChannelStartTyping':
+          return this.emit('typingStart', packet.id, packet.user);
+        case 'ChannelStopTyping':
+          return this.emit('typingStop', packet.id, packet.user);
       }
     });
 
