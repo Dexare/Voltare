@@ -1,6 +1,6 @@
 {
   "name": "voltare",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Modular and extendable Revolt bot framework",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
