@@ -42,7 +42,7 @@
     "lodash.clone": "^4.5.0",
     "lodash.uniq": "^4.5.0",
     "node-fetch": "3.1.1",
-    "revolt-api": "0.5.3-alpha.11",
+    "revolt-api": "0.5.3-alpha.12",
     "revolt.js": "^5.1.0-alpha.0-patch.0"
   },
   "devDependencies": {
