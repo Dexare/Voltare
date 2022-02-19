@@ -9,10 +9,10 @@ import { Member } from 'revolt.js/dist/maps/Members';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import { User } from 'revolt.js/dist/maps/Users';
 import { Channel } from 'revolt.js/dist/maps/Channels';
-import { PermissionObject } from '../types';
-import LoggerHandler from '../util/logger';
-import { ClientEvent } from './events';
-import VoltareClient from './index';
+import { PermissionObject } from '../types.js';
+import LoggerHandler from '../util/logger.js';
+import { ClientEvent } from './events.js';
+import VoltareClient from './index.js';
 import { Server } from 'revolt.js/dist/maps/Servers';
 
 /** The function for a permission. */

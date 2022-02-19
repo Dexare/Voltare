@@ -1,6 +1,6 @@
-import VoltareClient, { VoltareEvents } from './client';
-import { EventHandlers } from './client/events';
-import LoggerHandler from './util/logger';
+import VoltareClient, { VoltareEvents } from './client/index.js';
+import { EventHandlers } from './client/events.js';
+import LoggerHandler from './util/logger.js';
 
 /** Options for the {@link VoltareModule}. */
 export interface ModuleOptions {

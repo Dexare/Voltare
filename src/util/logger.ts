@@ -1,5 +1,5 @@
-import VoltareClient from '../client';
-import { LoggerExtra } from '../types';
+import VoltareClient from '../client/index.js';
+import { LoggerExtra } from '../types.js';
 
 /** A helper for modules to log events to Voltare */
 export default class LoggerHandler<T extends VoltareClient<any>> {

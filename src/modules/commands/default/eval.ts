@@ -1,8 +1,9 @@
-import VoltareClient from '../../../client';
-import VoltareCommand from '../command';
-import CommandContext from '../context';
+import VoltareClient from '../../../client/index.js';
+import VoltareCommand from '../command.js';
+import CommandContext from '../context.js';
 import util from 'util';
-import { escapeRegex } from '../../../util';
+import { fileURLToPath } from 'node:url';
+import { escapeRegex } from '../../../util/index.js';
 
 const nl = '!!NL!!';
 const nlPattern = new RegExp(nl, 'g');
@@ -31,7 +32,7 @@ export default class EvalCommand extends VoltareCommand {
       configurable: true
     });
 
-    this.filePath = __filename;
+    this.filePath = fileURLToPath(import.meta.url);
   }
 
   async run(ctx: CommandContext) {

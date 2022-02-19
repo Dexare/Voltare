@@ -1,10 +1,11 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const currentVersion = require('../package.json').version;
+const currentVersion = JSON.parse(await fs.promises.readFile('package.json')).version;
 if (!currentVersion) throw new Error("Can't detect library version.");
 
-const changelogPath = path.resolve(__dirname, '../CHANGELOG.md');
+const changelogPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../CHANGELOG.md');
 const changelog = fs.readFileSync(changelogPath, { encoding: 'utf-8' });
 if (changelog.includes(`## [${currentVersion}]`))
   throw new Error('Current version has already been documented.');

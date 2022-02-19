@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import VoltareClient from './client';
-import { ClientEvent } from './client/events';
-import { ThrottlingOptions } from './modules/commands/command';
-import LoggerHandler from './util/logger';
+import VoltareClient from './client/index.js';
+import { ClientEvent } from './client/events.js';
+import { ThrottlingOptions } from './modules/commands/command.js';
+import LoggerHandler from './util/logger.js';
 
 /** Options for the {@link DataManager}. */
 export interface DataManagerOptions {

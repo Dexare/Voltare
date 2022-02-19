@@ -2,9 +2,9 @@ import Collection from '@discordjs/collection';
 import * as Revolt from 'revolt.js';
 import EventEmitter from 'eventemitter3';
 import fetch from 'node-fetch';
-import VoltareModule from '../module';
-import CommandsModule from '../modules/commands';
-import CollectorModule from '../modules/collector';
+import VoltareModule from '../module.js';
+import CommandsModule from '../modules/commands/index.js';
+import CollectorModule from '../modules/collector/index.js';
 import {
   LoggerExtra,
   AutumnType,
@@ -15,14 +15,14 @@ import {
   ServerRoleUpdatePacket,
   UserUpdatePacket,
   UserRelationshipUpdate
-} from '../types';
-import LoggerHandler from '../util/logger';
-import TypedEmitter from '../util/typedEmitter';
-import EventRegistry from './events';
-import PermissionRegistry from './permissions';
-import DataManager from '../dataManager';
-import MemoryDataManager from '../dataManagers/memory';
-import { MultipartData } from '../util/multipartData';
+} from '../types.js';
+import LoggerHandler from '../util/logger.js';
+import TypedEmitter from '../util/typedEmitter.js';
+import EventRegistry from './events.js';
+import PermissionRegistry from './permissions.js';
+import DataManager from '../dataManager.js';
+import MemoryDataManager from '../dataManagers/memory.js';
+import { MultipartData } from '../util/multipartData.js';
 import { ClientboundNotification } from 'revolt.js/dist/websocket/notifications';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import clone from 'lodash.clone';
@@ -316,7 +316,7 @@ export default class VoltareClient<
       body: Buffer.concat(data.finish())
     });
     const body = await response.json();
-    return body.id as string;
+    return (body as any).id as string;
   }
 
   /** Gets the URL of an image on Autumn. */

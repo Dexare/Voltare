@@ -32,19 +32,19 @@ export {
   Util
 };
 
-export { VoltareEvents, BaseConfig } from './client';
-export { EventHandlers, EventGroup, ClientEvent } from './client/events';
-export { PermissionFunction, CorePermissions } from './client/permissions';
-export { CollectorOptions, CollectorFilter, ResetTimerOptions } from './modules/collector/collector';
-export { AwaitMessagesOptions } from './modules/collector';
-export { MessageCollectorOptions, MessageCollectorFilter } from './modules/collector/message';
-export { DefaultCommand } from './modules/commands';
-export { CommandOptions, ThrottlingOptions } from './modules/commands/command';
-export { StringIterator } from './modules/commands/interpreter';
-export { ThrottleObject, ThrottleResult } from './dataManager';
-export * from './constants';
-export { ModuleOptions } from './module';
-export { LoggerExtra, PermissionObject } from './types';
+export { VoltareEvents, BaseConfig } from './client/index.js';
+export { EventHandlers, EventGroup, ClientEvent } from './client/events.js';
+export { PermissionFunction, CorePermissions } from './client/permissions.js';
+export { CollectorOptions, CollectorFilter, ResetTimerOptions } from './modules/collector/collector.js';
+export { AwaitMessagesOptions } from './modules/collector/index.js';
+export { MessageCollectorOptions, MessageCollectorFilter } from './modules/collector/message.js';
+export { DefaultCommand } from './modules/commands/index.js';
+export { CommandOptions, ThrottlingOptions } from './modules/commands/command.js';
+export { StringIterator } from './modules/commands/interpreter.js';
+export { ThrottleObject, ThrottleResult } from './dataManager.js';
+export * from './constants.js';
+export { ModuleOptions } from './module.js';
+export { LoggerExtra, PermissionObject } from './types.js';
 
 export const VERSION: string = require('../package.json').version;
 

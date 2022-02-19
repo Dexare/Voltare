@@ -1,23 +1,24 @@
 import Collection from '@discordjs/collection';
-import { join } from 'path';
-import VoltareClient from '../../client';
-import { ClientEvent } from '../../client/events';
-import VoltareModule from '../../module';
-import { iterateFolder } from '../../util';
-import VoltareCommand from './command';
-import CommandContext from './context';
-import ArgumentInterpreter from './interpreter';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import VoltareClient from '../../client/index.js';
+import { ClientEvent } from '../../client/events.js';
+import VoltareModule from '../../module.js';
+import { iterateFolder } from '../../util/index.js';
+import VoltareCommand from './command.js';
+import CommandContext from './context.js';
+import ArgumentInterpreter from './interpreter.js';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import { ChannelPermission, ServerPermission } from 'revolt.js/dist/api/permissions';
 
-import EvalCommand from './default/eval';
-import HelpCommand from './default/help';
-import PingCommand from './default/ping';
-import ExecCommand from './default/exec';
-import KillCommand from './default/kill';
-import LoadCommand from './default/load';
-import UnloadCommand from './default/unload';
-import ReloadCommand from './default/reload';
+import EvalCommand from './default/eval.js';
+import HelpCommand from './default/help.js';
+import PingCommand from './default/ping.js';
+import ExecCommand from './default/exec.js';
+import KillCommand from './default/kill.js';
+import LoadCommand from './default/load.js';
+import UnloadCommand from './default/unload.js';
+import ReloadCommand from './default/reload.js';
 
 /** The default command names available. */
 export type DefaultCommand = 'eval' | 'help' | 'ping' | 'exec' | 'kill' | 'load' | 'unload' | 'reload';
@@ -33,7 +34,7 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
       description: "Voltare's command handler."
     });
 
-    this.filePath = __filename;
+    this.filePath = fileURLToPath(import.meta.url);
   }
 
   /** @hidden */
@@ -78,7 +79,7 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
    * @param path The path to register from.
    */
   registerFromFolder(path: string) {
-    return iterateFolder(path, async (file) => this.register(require(join(process.cwd(), file))));
+    return iterateFolder(path, async (file) => this.register(await import(join(process.cwd(), file))));
   }
 
   /**

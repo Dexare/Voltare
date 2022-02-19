@@ -1,9 +1,10 @@
 import Collection from '@discordjs/collection';
+import { fileURLToPath } from 'node:url';
 import { Channel } from 'revolt.js/dist/maps/Channels';
-import VoltareClient from '../../client';
-import VoltareModule from '../../module';
-import Collector from './collector';
-import MessageCollector, { MessageCollectorFilter, MessageCollectorOptions } from './message';
+import VoltareClient from '../../client/index.js';
+import VoltareModule from '../../module.js';
+import Collector from './collector.js';
+import MessageCollector, { MessageCollectorFilter, MessageCollectorOptions } from './message.js';
 
 /** The options for {@link CollectorModule#awaitMessages}. */
 export interface AwaitMessagesOptions extends MessageCollectorOptions {
@@ -21,7 +22,7 @@ export default class CollectorModule<T extends VoltareClient<any>> extends Volta
       description: "Voltare's collection handler, for asynchronous object collection."
     });
 
-    this.filePath = __filename;
+    this.filePath = fileURLToPath(import.meta.url);
   }
 
   /**

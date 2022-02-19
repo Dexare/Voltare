@@ -4,9 +4,9 @@ import { Member } from 'revolt.js/dist/maps/Members';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import { Server } from 'revolt.js/dist/maps/Servers';
 import { User } from 'revolt.js/dist/maps/Users';
-import CommandsModule from '.';
-import VoltareClient from '../../client';
-import { ClientEvent } from '../../client/events';
+import CommandsModule from './index.js';
+import VoltareClient from '../../client/index.js';
+import { ClientEvent } from '../../client/events.js';
 
 export type MessageOptions =
   | string

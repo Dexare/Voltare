@@ -1,4 +1,4 @@
-import VoltareCommand from './modules/commands/command';
+import VoltareCommand from './modules/commands/command.js';
 import { User } from 'revolt.js/dist/maps/Users';
 import { Member } from 'revolt.js/dist/maps/Members';
 import { Message } from 'revolt.js/dist/maps/Messages';

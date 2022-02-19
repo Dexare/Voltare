@@ -1,9 +1,9 @@
 import { Channel } from 'revolt.js/dist/maps/Channels';
 import { Message } from 'revolt.js/dist/maps/Messages';
-import CollectorModule from '.';
-import { VoltareClient } from '../..';
-import { ClientEvent } from '../../client/events';
-import Collector, { CollectorOptions } from './collector';
+import CollectorModule from './index.js';
+import { VoltareClient } from '../../index.js';
+import { ClientEvent } from '../../client/events.js';
+import Collector, { CollectorOptions } from './collector.js';
 
 export type MessageCollectorFilter = (message: Message) => boolean;
 

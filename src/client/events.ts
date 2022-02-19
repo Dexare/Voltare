@@ -1,8 +1,8 @@
 import Collection from '@discordjs/collection';
 import uniq from 'lodash.uniq';
-import LoggerHandler from '../util/logger';
-import { Arguments } from '../util/typedEmitter';
-import VoltareClient, { VoltareEvents } from './index';
+import LoggerHandler from '../util/logger.js';
+import { Arguments } from '../util/typedEmitter.js';
+import VoltareClient, { VoltareEvents } from './index.js';
 
 /** @hidden */
 export type EventHandlers = {

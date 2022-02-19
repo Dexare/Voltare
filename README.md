@@ -8,6 +8,9 @@
 
 Voltare is a version of the [Dexare](https://github.com/Dexare/Dexare) framework for [Revolt](https://revolt.chat). Easily make modules that depend on others or overwrite their functions.
 
+Per [revolt.js's README](https://github.com/revoltchat/revolt.js#example-usage-javascript--es6), you must use the `--experimental-specifier-resolution=node` when running scripts.
+Example: `node --experimental-specifier-resolution=node index.js`
+
 > Note: This is still in development. As [revolt.js](https://github.com/revoltchat/revolt.js) is still in beta, this framework may have some bugs.
 
 Documentation is unavailable at the moment, but some of the core features of Voltare is taken from the [Documentation for Dexare](https://github.com/Dexare/Dexare/wiki).

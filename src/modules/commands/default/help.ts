@@ -1,8 +1,9 @@
 import { oneLine, stripIndents } from 'common-tags';
-import VoltareClient from '../../../client';
-import { keyValueForEach, splitMessage, truncate } from '../../../util';
-import VoltareCommand from '../command';
-import CommandContext from '../context';
+import { fileURLToPath } from 'node:url';
+import VoltareClient from '../../../client/index.js';
+import { keyValueForEach, splitMessage, truncate } from '../../../util/index.js';
+import VoltareCommand from '../command.js';
+import CommandContext from '../context.js';
 
 export default class HelpCommand extends VoltareCommand {
   constructor(client: VoltareClient<any>) {
@@ -20,7 +21,7 @@ export default class HelpCommand extends VoltareCommand {
       }
     });
 
-    this.filePath = __filename;
+    this.filePath = fileURLToPath(import.meta.url);
   }
 
   async run(ctx: CommandContext) {

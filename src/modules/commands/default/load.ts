@@ -1,7 +1,8 @@
 import path from 'path';
-import VoltareClient from '../../../client';
-import VoltareCommand from '../command';
-import CommandContext from '../context';
+import { fileURLToPath } from 'node:url';
+import VoltareClient from '../../../client/index.js';
+import VoltareCommand from '../command.js';
+import CommandContext from '../context.js';
 
 export default class LoadCommand extends VoltareCommand {
   constructor(client: VoltareClient<any>) {
@@ -17,7 +18,7 @@ export default class LoadCommand extends VoltareCommand {
       }
     });
 
-    this.filePath = __filename;
+    this.filePath = fileURLToPath(import.meta.url);
   }
 
   async run(ctx: CommandContext) {
@@ -34,7 +35,7 @@ export default class LoadCommand extends VoltareCommand {
           requirePath = path.join(process.cwd(), arg);
         }
         delete require.cache[require.resolve(requirePath)];
-        const mod = require(requirePath);
+        const mod = await import(requirePath);
         mods.push(mod);
       } catch (e) {
         if ((e as any).code === 'MODULE_NOT_FOUND') return `A module could not be found in \`${arg}\`.`;

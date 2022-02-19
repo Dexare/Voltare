@@ -1,7 +1,8 @@
 import { exec } from 'child_process';
-import VoltareClient from '../../../client';
-import VoltareCommand from '../command';
-import CommandContext from '../context';
+import { fileURLToPath } from 'node:url';
+import VoltareClient from '../../../client/index.js';
+import VoltareCommand from '../command.js';
+import CommandContext from '../context.js';
 
 export default class ExecCommand extends VoltareCommand {
   constructor(client: VoltareClient<any>) {
@@ -16,7 +17,7 @@ export default class ExecCommand extends VoltareCommand {
       }
     });
 
-    this.filePath = __filename;
+    this.filePath = fileURLToPath(import.meta.url);
   }
 
   async run(ctx: CommandContext) {

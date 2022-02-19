@@ -1,7 +1,8 @@
 import fs from 'fs';
-import VoltareClient from '../../../client';
-import VoltareCommand from '../command';
-import CommandContext from '../context';
+import { fileURLToPath } from 'node:url';
+import VoltareClient from '../../../client/index.js';
+import VoltareCommand from '../command.js';
+import CommandContext from '../context.js';
 
 export default class ReloadCommand extends VoltareCommand {
   constructor(client: VoltareClient<any>) {
@@ -16,7 +17,7 @@ export default class ReloadCommand extends VoltareCommand {
       }
     });
 
-    this.filePath = __filename;
+    this.filePath = fileURLToPath(import.meta.url);
   }
 
   fileExists(path: string) {
@@ -34,7 +35,7 @@ export default class ReloadCommand extends VoltareCommand {
       if (!this.fileExists(mod.filePath)) return `The file for module \`${arg}\` no longer exists.`;
       await this.client.unloadModule(arg);
       delete require.cache[require.resolve(mod.filePath)];
-      const newMod = require(mod.filePath);
+      const newMod = await import(mod.filePath);
       this.client.loadModules(newMod);
     }
 

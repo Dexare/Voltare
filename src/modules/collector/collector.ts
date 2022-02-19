@@ -1,9 +1,9 @@
 import Collection from '@discordjs/collection';
 import EventEmitter from 'eventemitter3';
-import CollectorModule from '.';
-import VoltareClient, { VoltareEvents } from '../../client';
-import { EventHandlers } from '../../client/events';
-import TypedEmitter from '../../util/typedEmitter';
+import CollectorModule from './index.js';
+import VoltareClient, { VoltareEvents } from '../../client/index.js';
+import { EventHandlers } from '../../client/events.js';
+import TypedEmitter from '../../util/typedEmitter.js';
 
 /** @hidden */
 export type CollectorEvents = {

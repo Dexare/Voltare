@@ -1,5 +1,6 @@
-import VoltareClient from '../client';
-import DataManager, { ThrottleObject } from '../dataManager';
+import { fileURLToPath } from 'node:url';
+import VoltareClient from '../client/index.js';
+import DataManager, { ThrottleObject } from '../dataManager.js';
 
 /** Data manager in Voltare using memory. */
 export default class MemoryDataManager extends DataManager {
@@ -13,7 +14,7 @@ export default class MemoryDataManager extends DataManager {
       description: 'Voltare data manager using memory.'
     });
 
-    this.filePath = __filename;
+    this.filePath = fileURLToPath(import.meta.url);
   }
 
   async getThrottle(scope: string, id: string) {

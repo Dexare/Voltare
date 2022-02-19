@@ -1,9 +1,9 @@
 import { oneLine } from 'common-tags';
-import CommandsModule from '.';
-import VoltareClient from '../../client';
-import { PermissionNames } from '../../constants';
-import CommandContext from './context';
-import { ClientEvent } from '../../client/events';
+import CommandsModule from './index.js';
+import VoltareClient from '../../client/index.js';
+import { PermissionNames } from '../../constants.js';
+import CommandContext from './context.js';
+import { ClientEvent } from '../../client/events.js';
 import { Message } from 'revolt.js/dist/maps/Messages';
 import { User } from 'revolt.js/dist/maps/Users';
 import { Member } from 'revolt.js/dist/maps/Members';
@@ -251,9 +251,9 @@ export default class VoltareCommand {
   }
 
   /** Reloads the command. */
-  reload() {
+  async reload() {
     if (!this.filePath) throw new Error('Cannot reload a command without a file path defined!');
-    const newCommand = require(this.filePath);
+    const newCommand = await import(this.filePath);
     this.cmdsModule.reregister(newCommand, this);
   }
 
