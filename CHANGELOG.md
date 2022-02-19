@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ## [1.0.0] - 2022-02-19
 ### Changed:
-- **[BREAKING]** This package is now an ESM package. Per [revolt.js's README](https://github.com/revoltchat/revolt.js#example-usage-javascript--es6), you must use the `--experimental-specifier-resolution=node` when running scripts.
+- **[BREAKING]** This package is now an [ESM package](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c). Per [revolt.js's README](https://github.com/revoltchat/revolt.js#example-usage-javascript--es6), you must use the `--experimental-specifier-resolution=node` when running scripts.
 - `VoltareCommand#reload` now returns a Promise.
--
 ## [0.3.4] - 2021-09-12
 ### Changed:
 - Revolt errors are more descriptive
