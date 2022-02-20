@@ -46,7 +46,7 @@ export * from './constants.js';
 export { ModuleOptions } from './module.js';
 export { LoggerExtra, PermissionObject } from './types.js';
 
-export const VERSION: string = require('../package.json').version;
+export const VERSION = import('../package.json', { assert: { type: 'json' } }).version;
 
 // Export some types
 export type { User } from 'revolt-api/types/Users';
