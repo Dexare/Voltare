@@ -18,6 +18,8 @@ Documentation is unavailable at the moment, but some of the core features of Vol
 ### Client Example
 ```js
 import { VoltareClient } from 'voltare';
+import { fileURLToPath } from 'url';
+import { join } from 'path';
 
 const client = new VoltareClient({
   login: {
@@ -40,7 +42,7 @@ client.logRevoltEvents();
 client.logToConsole('info');
 
 // Registers all commands in a folder (don't use with ts-node)
-client.commands.registerFromFolder('./commands');
+await client.commands.registerFromFolder(join(fileURLToPath(import.meta.url), '..', 'commands'));
 // You can register a single command with `client.commands.register(HelloCommand)`.
 
 // Registers default commands listed below, you can pass an array of strings to select commands to register,
