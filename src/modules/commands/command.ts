@@ -139,7 +139,7 @@ export default class VoltareCommand {
    * - permission: `response` ({@link string}) to send
    * - throttling: `throttle` ({@link Object}), `remaining` ({@link number}) time in seconds
    */
-  onBlock(ctx: CommandContext, reason: string, data?: any) {
+  onBlock(ctx: CommandContext, reason: string, data?: any): Awaited<any> {
     switch (reason) {
       case 'permission': {
         if (data.response) return ctx.reply(data.response);
@@ -194,7 +194,7 @@ export default class VoltareCommand {
    * @param err Error that was thrown
    * @param ctx Command context the command is running from
    */
-  onError(err: Error, ctx: CommandContext) {
+  onError(err: Error, ctx: CommandContext): Awaited<any> {
     return ctx.reply(`An error occurred while running the \`${this.name}\` command.`);
   }
 
@@ -238,7 +238,7 @@ export default class VoltareCommand {
    * Runs the command.
    * @param ctx The context of the message
    */
-  async run(ctx: CommandContext): Promise<any> { // eslint-disable-line @typescript-eslint/no-unused-vars, prettier/prettier
+  async run(ctx: CommandContext): Awaited<any> { // eslint-disable-line @typescript-eslint/no-unused-vars, prettier/prettier
     throw new Error(`${this.constructor.name} doesn't have a run() method.`);
   }
 
@@ -246,7 +246,7 @@ export default class VoltareCommand {
    * Preloads the command.
    * This function is called upon loading the command, NOT after logging in.
    */
-  async preload(): Promise<any> {
+  async preload(): Awaited<any> {
     return true;
   }
 
@@ -268,7 +268,7 @@ export default class VoltareCommand {
    * @param response The response from the command run
    * @param ctx The context of the message
    */
-  finalize(response: any, ctx: CommandContext) {
+  finalize(response: any, ctx: CommandContext): Awaited<any> {
     if (
       typeof response === 'string' ||
       (response && response.constructor && response.constructor.name === 'Object')
