@@ -253,7 +253,7 @@ export default class VoltareCommand {
   /** Reloads the command. */
   async reload() {
     if (!this.filePath) throw new Error('Cannot reload a command without a file path defined!');
-    const newCommand = await import(this.filePath);
+    const newCommand = await import(await import(pathToFileURL(this.filePath).href));
     this.cmdsModule.reregister(newCommand, this);
   }
 
