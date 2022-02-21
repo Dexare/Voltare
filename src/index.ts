@@ -13,6 +13,7 @@ import LoggerHandler from './util/logger';
 import DataManager from './dataManager';
 import MemoryDataManager from './dataManagers/memory';
 import * as Util from './util';
+import * as fs from 'node:fs';
 
 export {
   VoltareClient,
@@ -46,9 +47,10 @@ export * from './constants.js';
 export { ModuleOptions } from './module.js';
 export { LoggerExtra, PermissionObject } from './types.js';
 
-export const VERSION = import('../package.json', { assert: { type: 'json' } }).version;
+export const VERSION = JSON.parse(
+  await fs.promises.readFile(new URL('../package.json', import.meta.url), { encoding: 'utf-8' })
+).version;
 
-// Export some types
 export type { User } from 'revolt-api/types/Users';
 export type { Channel } from 'revolt-api/types/Channels';
 export type { Server, Member, MemberCompositeKey, Role } from 'revolt-api/types/Servers';
