@@ -79,7 +79,7 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
    * @param path The path to register from.
    */
   registerFromFolder(path: string) {
-    return iterateFolder(path, async (file) => this.register(await import(join(process.cwd(), file))));
+    return iterateFolder(path, async (file) => this.register(await import(pathToFileURL(file).href)));
   }
 
   /**
