@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.0.2] - 2022-02-21
+### Changed:
+- Updated command types ([#26](https://github.com/Dexare/Voltare/pull/26))
+### Fixed:
+- Fixed reloading commands ([`ed71d4e`](https://github.com/Dexare/Voltare/commit/ed71d4e))
 ## [1.0.1] - 2022-02-21
 ### Fixed:
 - Fixed version in index ([#25](https://github.com/Dexare/Voltare/pull/25), [`bfa828f`](https://github.com/Dexare/Voltare/commit/bfa828f794f1fe163e84fd00e296a5ab3f6d217d))
@@ -54,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-08-29
 - Initial release.
 
-[Unreleased]: https://github.com/Dexare/Voltare/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/Dexare/Voltare/compare/v1.0.2...HEAD
 [0.1.0]: https://github.com/Dexare/Dexare/releases/tag/v0.1.0
 [0.2.0]: https://github.com/Dexare/Voltare/compare/v0.1.0...v0.2.0
 [0.3.0]: https://github.com/Dexare/Voltare/compare/v0.2.0...v0.3.0
@@ -64,3 +69,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.3.4]: https://github.com/Dexare/Voltare/compare/v0.3.3...v0.3.4
 [1.0.0]: https://github.com/Dexare/Voltare/compare/v0.3.4...v1.0.0
 [1.0.1]: https://github.com/Dexare/Voltare/compare/v1.0.0...v1.0.1
+[1.0.2]: https://github.com/Dexare/Voltare/compare/v1.0.1...v1.0.2
