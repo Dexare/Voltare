@@ -1,6 +1,6 @@
 import Collection from '@discordjs/collection';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import VoltareClient from '../../client/index.js';
 import { ClientEvent } from '../../client/events.js';
 import VoltareModule from '../../module.js';

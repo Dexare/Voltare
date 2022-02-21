@@ -8,6 +8,7 @@ import { Message } from 'revolt.js/dist/maps/Messages';
 import { User } from 'revolt.js/dist/maps/Users';
 import { Member } from 'revolt.js/dist/maps/Members';
 import { ChannelPermission, ServerPermission } from 'revolt.js/dist/api/permissions';
+import { pathToFileURL } from 'node:url';
 
 /** The options for a {@link VoltareCommand}. */
 export interface CommandOptions {
@@ -238,7 +239,7 @@ export default class VoltareCommand {
    * Runs the command.
    * @param ctx The context of the message
    */
-  async run(ctx: CommandContext): Awaited<any> { // eslint-disable-line @typescript-eslint/no-unused-vars, prettier/prettier
+  run(ctx: CommandContext): Awaited<any> { // eslint-disable-line @typescript-eslint/no-unused-vars, prettier/prettier
     throw new Error(`${this.constructor.name} doesn't have a run() method.`);
   }
 
@@ -246,14 +247,14 @@ export default class VoltareCommand {
    * Preloads the command.
    * This function is called upon loading the command, NOT after logging in.
    */
-  async preload(): Awaited<any> {
+  preload(): Awaited<any> {
     return true;
   }
 
   /** Reloads the command. */
   async reload() {
     if (!this.filePath) throw new Error('Cannot reload a command without a file path defined!');
-    const newCommand = await import(await import(pathToFileURL(this.filePath).href));
+    const newCommand = await import(pathToFileURL(this.filePath).href);
     this.cmdsModule.reregister(newCommand, this);
   }
 
