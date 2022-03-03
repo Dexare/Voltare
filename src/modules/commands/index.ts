@@ -52,6 +52,10 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
    * @param command The command to register
    */
   register(command: any) {
+    if (Object.keys(command).length > 1) {
+      return this.registerMultipleCommands(Object.values(command));
+    }
+
     if (typeof command === 'function') command = new command(this.client);
     else if (typeof command.default === 'function') command = new command.default(this.client);
 
@@ -72,6 +76,14 @@ export default class CommandsModule<T extends VoltareClient<any>> extends Voltar
     this.commands.set(command.name, command);
     this.logger.log(`Registered command ${command.name}.`);
     return command;
+  }
+
+  /**
+   * Registers multiple commands from one file.
+   * @param commands The commands to register
+   */
+  private registerMultipleCommands(commands: any) {
+    for (const command of commands) this.register(command);
   }
 
   /**
