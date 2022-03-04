@@ -11,8 +11,8 @@ export class EventsModule<T extends VoltareClient<any>> extends VoltareModule<T>
 
   constructor(client: T) {
     super(client, {
-      name: 'Events',
-      description: "Voltare's events handler."
+      name: 'events',
+      description: 'Events handler for custom events loaded as files.'
     });
 
     this.filePath = fileURLToPath(import.meta.url);
