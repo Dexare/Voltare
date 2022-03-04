@@ -27,6 +27,7 @@ import { ClientboundNotification } from 'revolt.js/dist/websocket/notifications'
 import { Message } from 'revolt.js/dist/maps/Messages';
 import clone from 'lodash.clone';
 import { Channel } from 'revolt-api/types/Channels';
+import { EventsModule } from '../modules/events/index.js';
 
 export type LoginDetails =
   | {
@@ -110,6 +111,7 @@ export default class VoltareClient<
   readonly bot: Revolt.Client;
   readonly permissions: PermissionRegistry<this>;
   readonly events = new EventRegistry<this>(this);
+  readonly customEvents = new EventsModule<this>(this);
   readonly logger = new LoggerHandler<this>(this, 'voltare/client');
   readonly modules = new Collection<string, VoltareModule<this>>();
   readonly commands = new CommandsModule<this>(this);
@@ -182,6 +184,8 @@ export default class VoltareClient<
     this.commands._load();
     this.modules.set('collector', this.collector);
     this.collector._load();
+    this.modules.set('events', this.customEvents);
+    this.customEvents._load();
   }
 
   /**
