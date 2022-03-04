@@ -71,7 +71,7 @@ export class EventsModule<T extends VoltareClient<any>> extends VoltareModule<T>
    * Registers multiple commands from one file.
    * @param events The commands to register
    */
-  private registerMultipleCommands(events: any) {
+  private registerMultipleEvents(events: any) {
     for (const command of events) this.register(command);
   }
 }
