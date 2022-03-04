@@ -21,7 +21,7 @@ export default class VoltareEvent {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public run(..._args: unknown[]): Awaited<unknown> {
+  public run(..._args: any[]): Awaited<any> {
     throw new Error('Run method not found.');
   }
 }
