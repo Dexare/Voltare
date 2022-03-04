@@ -23,7 +23,7 @@ export class EventsModule<T extends VoltareClient<any>> extends VoltareModule<T>
    * @param event The command to register
    */
   public register(event: any) {
-    if (Object.keys(event).length >= 1) {
+    if (Object.keys(event).length > 1) {
       return this.registerMultipleCommands(Object.values(event));
     }
 
