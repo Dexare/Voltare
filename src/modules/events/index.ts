@@ -64,7 +64,7 @@ export class EventsModule<T extends VoltareClient<any>> extends VoltareModule<T>
   public unregister(event: VoltareEvent) {
     event.emitter.off(event.name, event.run);
     this.events.delete(event.name);
-    this.logger.log(`Unregistered command ${event.name}.`);
+    this.logger.log(`Unregistered event ${event.name}.`);
   }
 
   /**
