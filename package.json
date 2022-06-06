@@ -37,7 +37,7 @@
     "*.ts": "eslint --fix"
   },
   "dependencies": {
-    "@discordjs/collection": "^0.6.0",
+    "@discordjs/collection": "^0.7.0",
     "common-tags": "^1.8.0",
     "eventemitter3": "^4.0.7",
     "lodash.clone": "^4.5.0",
