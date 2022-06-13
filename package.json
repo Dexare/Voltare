@@ -44,7 +44,7 @@
     "lodash.uniq": "^4.5.0",
     "node-fetch": "3.2.6",
     "revolt-api": "0.5.3-rc.8",
-    "revolt.js": "^5.2.8"
+    "revolt.js": "^6.0.3"
   },
   "devDependencies": {
     "@types/common-tags": "^1.8.0",
